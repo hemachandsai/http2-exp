@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+
+      .img-row {
+        position: relative;
+      }
+
+      img {
+        position: relative;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="elapsed-time"></div>
+    <div class="image-wrapper"></div>
+    <button onclick="loadMain()">Refresh</button>
+    <script>
+      if (window.NodeList && !NodeList.prototype.forEach) {
+        NodeList.prototype.forEach = Array.prototype.forEach;
+      }
+
+      const divFactor = 225;
+      const imageHeight = 3600;
+      const imageWidth = 5400;
+      const ampFactor = 0.9;
+
+      let imgCounter;
+      let intervalId;
+      let startTime;
+      let elapsedTime;
+
+      function loadMain() {
+        startTime = 0;
+        elapsedTime = 0;
+        imgCounter = 0;
+        let currentImageIndex = 1;
+
+        document.querySelector(".image-wrapper").innerHTML = "";
+        intervalId = setInterval(function () {
+          document.querySelector(
+            ".elapsed-time"
+          ).innerText = "HTTP1 Load Time: ".concat(elapsedTime, "s");
+        }, 300);
+
+        const imgH = Math.floor(
+          (window.innerHeight * divFactor * ampFactor) / imageHeight
+        );
+        let imgW = Math.floor(
+          (window.innerWidth * divFactor * ampFactor) / imageWidth
+        );
+
+        for (let i = 1; i <= imageHeight / divFactor; i++) {
+          let tempHTML = "<div class='img-row' style=\"height: ".concat(
+            imgH,
+            'px;">'
+          );
+
+          for (let _ = 1; _ <= imageWidth / divFactor; _++) {
+            tempHTML += `<img width=${imgW} src="/http1/images/part-${currentImageIndex}.jpg">`;
+            currentImageIndex++;
+          }
+
+          tempHTML += "</div>";
+          document.querySelector(".image-wrapper").innerHTML += tempHTML;
+        }
+
+        document.querySelectorAll("img").forEach(function (img) {
+          img.onload = trackTime;
+        });
+      }
+
+      function trackTime() {
+        if (imgCounter === 0) {
+          startTime = new Date();
+        }
+        imgCounter++;
+        let diffTime = Math.abs(new Date() - startTime);
+        elapsedTime = (diffTime / 1000).toFixed(2);
+
+        if (
+          imgCounter ===
+          (imageHeight / divFactor) * (imageWidth / divFactor)
+        ) {
+          console.log("HTTP1 took ".concat(diffTime / 1000, " seconds"));
+          clearInterval(intervalId);
+        }
+      }
+
+      loadMain();
+    </script>
+  </body>
+</html>
