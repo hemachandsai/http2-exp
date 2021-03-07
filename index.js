@@ -12,7 +12,7 @@ const httpsOptions = {
   ca: fs.readFileSync("certs/chain.pem"),
 };
 const http1Port = 443;
-const http2Port = 3002;
+const http2Port = 8443;
 const fileData = [];
 
 function initExpressApp() {
